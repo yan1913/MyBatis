@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <!-- 引入存放数据库连接信息的属性文件 jdbc.properties -->
+    <properties resource="jdbc.properties"></properties>
+
+    <!--全局配置-->
+    <settings>
+        <!--打印sql日志信息,以便调试STDOUT_LOGGING-->
+        <!--开启Mybatis的sql执行相关信息打印-->
+        <setting name="logImpl" value="STDOUT_LOGGING" />
+        <!--开启驼峰命名规则自动转换-->
+        <setting name="mapUnderscoreToCamelCase" value="true" />
+        <setting name="autoMappingBehavior" value="PARTIAL"/>
+
+        <!-- 开启二级缓存 -->
+        <setting name="cacheEnabled" value="true"/>
+
+        <!--开启全局的懒加载-->
+        <setting name="lazyLoadingEnabled" value="false"/>
+        <!--关闭立即加载，其实不用配置，默认为false-->
+        <setting name="aggressiveLazyLoading" value="true"/>
+
+       <!--<setting name="lazyLoadTriggerMethods" value="equals,clone,hashCode,toString"/>-->
+    </settings>
+    
+    <!-- 配置Java类型别名 -->
+    <typeAliases>
+        <package name="com.bdqn.pojo"/>
+    </typeAliases>
+
+    <!-- 配置运行环境 -->
+    <environments default="dev">
+        <environment id="dev">
+            <!-- 配置事务管理器 -->
+            <transactionManager type="JDBC"></transactionManager>
+            <!-- 配置数据源 -->
+            <dataSource type="POOLED">
+                <property name="driver" value="${driverClass}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${user}"/>
+                <property name="password" value="${password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <!-- 配置映射器 -->
+    <mappers>
+        <!-- 扫描指定包下的映射文件并进行加载 -->
+        <package name="com.bdqn.mapper"/>
+    </mappers>
+</configuration>

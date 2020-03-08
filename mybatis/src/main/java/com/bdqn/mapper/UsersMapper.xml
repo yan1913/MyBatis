@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bdqn.mapper.UsersMapper">
+
+    <!-- 定义SQL片段 -->
+    <sql id="Base_Column_List">
+        userId,userName,`password`,realName,gender,birthday,phone,roleId,avatarPath,email,deleteFlag,createdDate
+    </sql>
+
+    <!-- 自定义结果集映射
+    autoMapping属性结果集自动映射
+    fetchType="lazy" 开启懒加载    fetchType="eager"立即加载 优先级大于全局的懒加载 -->
+    <resultMap id="userMap" type="Users">
+        <association property="roles" javaType="Roles" column="{roleId=roleId}" select="com.bdqn.mapper.RolesMapper.selectRolesById"/>
+    </resultMap>
+
+    <!-- 根据条件分页查询用户信息列表 -->
+    <select id="selectUsersByPaging" resultMap="userMap">
+            <bind name="startRow" value="(curPage - 1) * pageSize"/>
+            select <include refid="Base_Column_List"/> from users where deleteFlag=0
+            <if test="realName != null and realName != ''">
+                and realName like concat('%',#{realName},'%')
+            </if>
+            <if test="roleId != null and roleId !=0">
+                and roleId=#{roleId}
+            </if>
+            <if test="startDate != null">
+                and date_format(createdDate,'%Y-%m-%d') >= #{startDate}
+            </if>
+            <if test="endDate != null">
+                and date_format(createdDate,'%Y-%m-%d')  <![CDATA[ <= ]]>   #{startDate}
+            </if>
+            <if test="orderField != null and orderField !=''" >
+               ORDER BY
+            <choose>
+                <when test="orderField == 'createdDate'">
+                    createdDate ${orderType}
+                </when>
+                <otherwise>
+                    userId ${orderType}
+                </otherwise>
+            </choose>
+        </if>
+         LIMIT #{startRow},#{pageSize}
+    </select>
+
+    <!-- 动态更新SQL语句 -->
+    <update id="smartUpdateUser" parameterType="Users">
+        update users
+        <set>
+            <if test="userName != null and userName.length() > 0">
+                 userName=#{userName},
+            </if>
+            <if test="password != null and password.length() > 0">
+                password=#{password},
+            </if>
+            <if test="realName != null and realName.length() > 0">
+                realName=#{realName},
+            </if>
+            <if test="gender != null and gender != 0">
+                gender=#{gender},
+            </if>
+            <if test="birthday != null">
+                birthday=#{birthday},
+            </if>
+            <if test="phone != null and phone !=''">
+                phone=#{phone},
+            </if>
+            <if test="roleId != null and roleId > 0">
+                roleId = #{roleId},
+            </if>
+            <if test="avatarPath != null and avatarPath !='' ">
+                avatarPath=#{avatarPath},
+            </if>
+            <if test="email != null and email !='' ">
+                email = #{email}
+            </if>
+        </set> where userId=#{userId}
+    </update>
+</mapper>
